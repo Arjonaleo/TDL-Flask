@@ -5,9 +5,6 @@ from datetime import datetime
 app = Flask(__name__)
 DATABASE = 'database.db'
 
-# ========================================
-# FUNCIONES DE BASE DE DATOS
-# ========================================
 
 def get_db():
     """Conecta a la base de datos SQLite"""
@@ -83,18 +80,43 @@ def init_db():
 # Inicializar la base de datos al arrancar
 init_db()
 
-# ========================================
-# RUTA TEMPORAL PARA PROBAR
-# ========================================
+
 
 @app.route('/')
 def index():
-    """Página principal - temporal"""
-    return "<h1>Sistema de Tareas - En construcción</h1>"
+    """Página principal - Dashboard con estadísticas"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Contar total de tareas
+    cursor.execute("SELECT COUNT(*) as count FROM tasks")
+    total_tasks = cursor.fetchone()['count']
+    
+    # Contar tareas completadas
+    cursor.execute("SELECT COUNT(*) as count FROM tasks WHERE completed = 1")
+    completed_tasks = cursor.fetchone()['count']
+    
+    # Calcular pendientes
+    pending_tasks = total_tasks - completed_tasks
+    
+    conn.close()
+    
+    return render_template('index.html', 
+                         total_tasks=total_tasks,
+                         completed_tasks=completed_tasks,
+                         pending_tasks=pending_tasks)
 
-# ========================================
-# EJECUTAR LA APLICACIÓN
-# ========================================
+@app.route('/tasks')
+def tasks_page():
+    """Página que muestra todas las tareas - temporal"""
+    return "<h1>Lista de tareas - próximamente</h1>"
 
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.route('/task/create')
+def create_task_form():
+    """Formulario crear tarea - temporal"""
+    return "<h1>Crear tarea - próximamente</h1>"
+
+@app.route('/categories')
+def categories_page():
+    """Página de categorías - temporal"""
+    return "<h1>Categorías - próximamente</h1>"
