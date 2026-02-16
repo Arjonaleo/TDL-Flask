@@ -210,3 +210,6 @@ def edit_task_form(id):
 @app.route('/task/delete/<int:id>')
 def delete_task(id):
     return "<h1>Eliminar tarea - próximamente</h1>"
+
+if __name__ == '__main__':
+    app.run(debug=True)
