@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Tarea{% endblock %}
+
+{% block content %}
+<!-- SECTION: Formulario de edición -->
+<section class="form-section">
+    <h2>✏️ Editar Tarea</h2>
+    
+    <form method="POST" action="{{ url_for('update_task', id=task.id) }}" class="task-form">
+        
+        <div class="form-group">
+            <label for="title">Título de la tarea *</label>
+            <input type="text" 
+                   id="title" 
+                   name="title" 
+                   value="{{ task.title }}"
+                   required
+                   maxlength="100">
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Descripción</label>
+            <textarea id="description" 
+                      name="description" 
+                      rows="4">{{ task.description or '' }}</textarea>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="category_id">Categoría</label>
+                <select id="category_id" name="category_id">
+                    <option value="">Sin categoría</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" 
+                            {% if task.category_id == category.id %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="due_date">Fecha de vencimiento</label>
+                <input type="date" 
+                       id="due_date" 
+                       name="due_date"
+                       value="{{ task.due_date or '' }}">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" 
+                       name="completed" 
+                       value="1"
+                       {% if task.completed %}checked{% endif %}>
+                Marcar como completada
+            </label>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 Guardar Cambios</button>
+            <a href="{{ url_for('tasks_page') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+        
+    </form>
+</section>
+{% endblock %}
