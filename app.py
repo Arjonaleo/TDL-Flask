@@ -202,14 +202,62 @@ def toggle_task(id):
     
     return redirect(url_for('tasks_page'))
 
-# Rutas temporales (se completarán en el día 4)
 @app.route('/task/edit/<int:id>')
 def edit_task_form(id):
-    return "<h1>Editar tarea - próximamente</h1>"
+    """Muestra el formulario para editar una tarea"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM tasks WHERE id = ?", (id,))
+    task = cursor.fetchone()
+    
+    cursor.execute("SELECT * FROM categories")
+    categories = cursor.fetchall()
+    
+    conn.close()
+    
+    if task is None:
+        return "Tarea no encontrada", 404
+    
+    return render_template('edit_task.html', task=task, categories=categories)
+
+@app.route('/task/edit/<int:id>', methods=['POST'])
+def update_task(id):
+    """Actualiza una tarea existente"""
+    title = request.form['title']
+    description = request.form.get('description', '')
+    category_id = request.form.get('category_id') or None
+    due_date = request.form.get('due_date') or None
+    completed = 1 if request.form.get('completed') else 0
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        UPDATE tasks
+        SET title = ?, description = ?, category_id = ?, due_date = ?, completed = ?
+        WHERE id = ?
+    """, (title, description, category_id, due_date, completed, id))
+    
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('tasks_page'))
+
+
 
 @app.route('/task/delete/<int:id>')
 def delete_task(id):
-    return "<h1>Eliminar tarea - próximamente</h1>"
+    """Elimina una tarea"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("DELETE FROM tasks WHERE id = ?", (id,))
+    
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('tasks_page'))
 
 if __name__ == '__main__':
     app.run(debug=True)
