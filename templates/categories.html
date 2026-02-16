@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Categorías{% endblock %}
+
+{% block content %}
+<!-- SECTION: Encabezado de categorías -->
+<section class="tasks-header">
+    <h2>🏷️ Categorías de Tareas</h2>
+</section>
+
+<!-- SECTION: Grid de categorías -->
+<section class="categories-section">
+    <div class="categories-grid">
+        {% for category in categories %}
+        <article class="category-card" style="background-color: {{ category.color }};">
+            <h3>{{ category.name }}</h3>
+            <p class="category-count">{{ category.task_count }} tareas</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- SECTION: Información adicional -->
+<section class="info-section">
+    <h3>💡 Sobre las categorías</h3>
+    <p>Las categorías te ayudan a organizar tus tareas por tipo de actividad.</p>
+    <p>Cada tarea puede pertenecer a una categoría específica para facilitar su gestión.</p>
+</section>
+{% endblock %}
