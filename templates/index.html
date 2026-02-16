@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Sistema de Tareas{% endblock %}
+
+{% block content %}
+<!-- SECTION: Sección de bienvenida -->
+<section class="welcome-section">
+    <h2>Bienvenido a tu gestor de tareas</h2>
+    <p>Organiza tu día de manera eficiente</p>
+</section>
+
+<!-- SECTION: Estadísticas rápidas -->
+<section class="stats-section">
+    <div class="stat-card">
+        <h3>📋 Tareas Totales</h3>
+        <p class="stat-number">{{ total_tasks }}</p>
+    </div>
+    
+    <div class="stat-card">
+        <h3>✅ Completadas</h3>
+        <p class="stat-number">{{ completed_tasks }}</p>
+    </div>
+    
+    <div class="stat-card">
+        <h3>⏳ Pendientes</h3>
+        <p class="stat-number">{{ pending_tasks }}</p>
+    </div>
+</section>
+
+<!-- SECTION: Acciones rápidas -->
+<section class="actions-section">
+    <h3>Acciones rápidas</h3>
+    <div class="action-buttons">
+        <a href="{{ url_for('create_task_form') }}" class="btn btn-primary">➕ Nueva Tarea</a>
+        <a href="{{ url_for('tasks_page') }}" class="btn btn-secondary">📋 Ver todas las tareas</a>
+    </div>
+</section>
+{% endblock %}
