@@ -82,6 +82,8 @@ init_db()
 
 
 
+
+
 @app.route('/')
 def index():
     """Página principal - Dashboard con estadísticas"""
@@ -108,15 +110,103 @@ def index():
 
 @app.route('/tasks')
 def tasks_page():
-    """Página que muestra todas las tareas - temporal"""
-    return "<h1>Lista de tareas - próximamente</h1>"
+    """Página que muestra todas las tareas"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Obtener todas las tareas con información de categoría
+    cursor.execute("""
+        SELECT tasks.*, categories.name as category_name, categories.color as category_color
+        FROM tasks
+        LEFT JOIN categories ON tasks.category_id = categories.id
+        ORDER BY tasks.created_at DESC
+    """)
+    tasks = cursor.fetchall()
+    
+    conn.close()
+    
+    return render_template('tasks.html', tasks=tasks)
 
 @app.route('/task/create')
 def create_task_form():
-    """Formulario crear tarea - temporal"""
-    return "<h1>Crear tarea - próximamente</h1>"
+    """Muestra el formulario para crear una tarea"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM categories")
+    categories = cursor.fetchall()
+    
+    conn.close()
+    
+    return render_template('create_task.html', categories=categories)
 
 @app.route('/categories')
 def categories_page():
     """Página de categorías - temporal"""
     return "<h1>Categorías - próximamente</h1>"
+
+
+# CRUD - CREAR TAREAS
+
+
+@app.route('/task/create', methods=['POST'])
+def create_task():
+    """Crea una nueva tarea en la base de datos"""
+    title = request.form['title']
+    description = request.form.get('description', '')  # Opcional
+    category_id = request.form.get('category_id') or None
+    due_date = request.form.get('due_date') or None
+    
+    # Por ahora, user_id será 1 (usuario demo)
+    user_id = 1
+    
+    # Fecha de creación
+    created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        INSERT INTO tasks (title, description, user_id, category_id, created_at, due_date)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (title, description, user_id, category_id, created_at, due_date))
+    
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('tasks_page'))
+
+
+# MARCAR TAREA COMO COMPLETADA
+
+
+@app.route('/task/toggle/<int:id>')
+def toggle_task(id):
+    """Marca o desmarca una tarea como completada"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Obtener el estado actual
+    cursor.execute("SELECT completed FROM tasks WHERE id = ?", (id,))
+    task = cursor.fetchone()
+    
+    if task:
+        # Invertir el estado
+        new_status = 0 if task['completed'] else 1
+        
+        cursor.execute("UPDATE tasks SET completed = ? WHERE id = ?", (new_status, id))
+        
+        conn.commit()
+    
+    conn.close()
+    
+    return redirect(url_for('tasks_page'))
+
+# Rutas temporales (se completarán en el día 4)
+@app.route('/task/edit/<int:id>')
+def edit_task_form(id):
+    return "<h1>Editar tarea - próximamente</h1>"
+
+@app.route('/task/delete/<int:id>')
+def delete_task(id):
+    return "<h1>Eliminar tarea - próximamente</h1>"
