@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Tareas{% endblock %}
+
+{% block content %}
+<!-- SECTION: Encabezado de tareas -->
+<section class="tasks-header">
+    <h2>📋 Mis Tareas</h2>
+    <a href="{{ url_for('create_task_form') }}" class="btn btn-primary">➕ Nueva Tarea</a>
+</section>
+
+<!-- SECTION: Filtros de tareas -->
+<section class="filters-section">
+    <div class="filter-buttons">
+        <button class="filter-btn active" onclick="filterTasks('all')">Todas</button>
+        <button class="filter-btn" onclick="filterTasks('pending')">Pendientes</button>
+        <button class="filter-btn" onclick="filterTasks('completed')">Completadas</button>
+    </div>
+</section>
+
+<!-- SECTION: Lista de tareas -->
+<section class="tasks-list">
+    {% if tasks %}
+        {% for task in tasks %}
+        <article class="task-card {% if task.completed %}completed{% endif %}" data-status="{% if task.completed %}completed{% else %}pending{% endif %}">
+            <div class="task-header">
+                <div class="task-title-section">
+                    <input type="checkbox" 
+                           {% if task.completed %}checked{% endif %}
+                           onchange="window.location.href='{{ url_for('toggle_task', id=task.id) }}'">
+                    <h3 class="task-title">{{ task.title }}</h3>
+                </div>
+                
+                {% if task.category_name %}
+                <span class="category-badge" style="background-color: {{ task.category_color }};">
+                    {{ task.category_name }}
+                </span>
+                {% endif %}
+            </div>
+            
+            {% if task.description %}
+            <p class="task-description">{{ task.description }}</p>
+            {% endif %}
+            
+            <div class="task-footer">
+                <div class="task-dates">
+                    <small>📅 Creada: {{ task.created_at[:10] }}</small>
+                    {% if task.due_date %}
+                    <small>⏰ Vence: {{ task.due_date }}</small>
+                    {% endif %}
+                </div>
+                
+                <div class="task-actions">
+                    <a href="{{ url_for('edit_task_form', id=task.id) }}" class="btn-icon" title="Editar">✏️</a>
+                    <a href="{{ url_for('delete_task', id=task.id) }}" 
+                       class="btn-icon btn-danger" 
+                       title="Eliminar"
+                       onclick="return confirm('¿Estás seguro de eliminar esta tarea?')">🗑️</a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <p>📭 No tienes tareas aún</p>
+            <a href="{{ url_for('create_task_form') }}" class="btn btn-primary">Crear tu primera tarea</a>
+        </div>
+    {% endif %}
+</section>
+
+<script>
+// Función simple de filtrado
+function filterTasks(filter) {
+    const tasks = document.querySelectorAll('.task-card');
+    const buttons = document.querySelectorAll('.filter-btn');
+    
+    // Actualizar botones activos
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Filtrar tareas
+    tasks.forEach(task => {
+        if (filter === 'all') {
+            task.style.display = 'block';
+        } else {
+            task.style.display = task.dataset.status === filter ? 'block' : 'none';
+        }
+    });
+}
+</script>
+{% endblock %}
