@@ -142,8 +142,26 @@ def create_task_form():
 
 @app.route('/categories')
 def categories_page():
-    """Página de categorías - temporal"""
-    return "<h1>Categorías - próximamente</h1>"
+    """Página que muestra todas las categorías con contador de tareas"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Obtener categorías con el conteo de tareas
+    cursor.execute("""
+        SELECT 
+            categories.id,
+            categories.name,
+            categories.color,
+            COUNT(tasks.id) as task_count
+        FROM categories
+        LEFT JOIN tasks ON categories.id = tasks.category_id
+        GROUP BY categories.id
+    """)
+    categories = cursor.fetchall()
+    
+    conn.close()
+    
+    return render_template('categories.html', categories=categories)
 
 
 # CRUD - CREAR TAREAS
